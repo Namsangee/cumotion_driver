@@ -27,6 +27,7 @@ install(PROGRAMS
   launch/include/cumotion.launch.py
   launch/include/obstacle_manager.py
   launch/include/pick_and_place_server.py
+  launch/include/nvblox_node.launch.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

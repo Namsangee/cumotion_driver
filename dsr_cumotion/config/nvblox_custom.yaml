@@ -6,7 +6,7 @@
     cuda_stream_type: 1
 
     # 전체 맵 해상도(단위 m/voxel). 값이 작을수록 맵이 촘촘하고 무거움
-    voxel_size: 0.01
+    voxel_size: 0.05
 
     # 사용 카메라(또는 센서) 개수. 멀티 카메라 융합 시 >1
     num_cameras: 1

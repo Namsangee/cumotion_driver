@@ -153,6 +153,7 @@ def get_cumotion_node(context):
                 "workspace_bounds_name": "workbound_test",
                 "enable_object_attachment": enable_attach,
                 "read_esdf_world": "False",
+                "update_esdf_on_request": "False",
                 "tool_frame": "grasp_frame",
                 "joint_states_topic": "/joint_states",
                 "urdf_file_path": urdf_path,

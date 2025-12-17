@@ -13,10 +13,14 @@
   <xacro:arg name="model"        default=""/>
   <xacro:arg name="update_rate"  default=""/>
   <xacro:property name="gripper" value="$(arg gripper)"/>
+  <xacro:arg name="isaac_sim" default="false"/>
+
   <!-- <xacro:property name="mode" value="$(arg mode)"/> -->
 
   <xacro:include filename="$(find dsr_cumotion)/urdf/macro.m1013.white.xacro"/>
-  <xacro:m1013 namespace="$(arg namespace)"/>
+  <xacro:m1013
+    namespace="$(arg namespace)"
+    isaac_sim="$(arg isaac_sim)"/>
 
   <xacro:if value="${gripper == 'vgc10'}">
     <xacro:include filename="$(find dsr_cumotion)/urdf/vgc10/onrobot_vgc10_4cups_model.urdf"/>

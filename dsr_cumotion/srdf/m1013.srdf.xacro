@@ -2,16 +2,16 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="m1013">
 
   <xacro:arg name="model"   default="m1013"/>
-  <xacro:arg name="gripper" default="none"/>
   <xacro:property name="gripper" value="$(arg gripper)"/>
+  <xacro:property name="isaac_sim" value="$(arg isaac_sim)"/>
 
-  <xacro:if value="${gripper == 'none'}">
+  <xacro:if value="${gripper == 'none' and isaac_sim != 'true'}">
     <group name="manipulator">
       <chain base_link="base_link" tip_link="tool0"/>
     </group>
   </xacro:if>
 
-  <xacro:if value="${gripper != 'none'}">
+  <xacro:if value="${gripper != 'none' or isaac_sim == 'true'}">
     <group name="manipulator">
       <chain base_link="base_link" tip_link="grasp_frame"/>
     </group>
@@ -129,4 +129,19 @@
 
   </xacro:if>
 
+  <xacro:if value="${isaac_sim == 'true'}">
+    <disable_collisions link1="link_6" link2="vision_bracket" reason="Never"/>
+    <disable_collisions link1="tool0" link2="vision_bracket" reason="Adjacent"/>
+    <disable_collisions link1="tool0" link2="d435i_camera" reason="Adjacent"/>
+    <disable_collisions link1="grasp_frame" link2="tool0" reason="Never"/>
+    <disable_collisions link1="grasp_frame" link2="robotiq_85_left_finger_tip_link"  reason="Never"/>
+    <disable_collisions link1="grasp_frame" link2="robotiq_85_right_finger_tip_link" reason="Never"/>
+
+    <disable_collisions link1="vision_bracket" link2="tool0" reason="Adjacent"/>
+    <disable_collisions link1="vision_bracket" link2="robotiq_85_base_link" reason="Never"/>
+
+    <disable_collisions link1="d435i_camera" link2="vision_bracket" reason="Adjacent"/>
+    <disable_collisions link1="d435i_camera" link2="robotiq_85_left_finger_tip_link"  reason="Never"/>
+    <disable_collisions link1="d435i_camera" link2="robotiq_85_right_finger_tip_link" reason="Never"/>
+  </xacro:if>
 </robot>
