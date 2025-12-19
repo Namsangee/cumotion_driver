@@ -29,9 +29,7 @@ from isaacsim.core.utils import nucleus, prims, rotations, stage, viewports, ext
 from isaacsim.core.utils.prims import set_targets
 
 
-# -----------------------------------------------------------------------------
 # Helper: carb settings
-# -----------------------------------------------------------------------------
 _settings = carb.settings.get_settings()
 
 def _set(k, v):
@@ -40,24 +38,18 @@ def _set(k, v):
     except Exception:
         pass
 
-# GPU/RTX toggle (A1000 6GB면 옵션 낮추는 게 안정적일 수 있음)
-_set("/renderer/multiGpu/enabled", False)
-_set("/renderer/textureStreaming/enabled", False)
+_set("/renderer/multiGpu/enabled", True)
+_set("/renderer/textureStreaming/enabled", True)
 
-_set("/rtx/enabled", False)
-_set("/rtx/aa/enabled", False)
-_set("/rtx/reflections/enabled", False)
-_set("/rtx/indirectDiffuse/enabled", False)
-_set("/rtx/ambientOcclusion/enabled", False)
+_set("/rtx/enabled", True)
+_set("/rtx/aa/enabled", True)
+_set("/rtx/reflections/enabled", True)
+_set("/rtx/indirectDiffuse/enabled", True)
+_set("/rtx/ambientOcclusion/enabled", True)
 
-# -----------------------------------------------------------------------------
 # Paths / prim settings
-# -----------------------------------------------------------------------------
 ROBOT_MOUNT_PRIM = "/Root"
-# ROBOT_USD_PATH = "/ros2_ws/src/doosanrobotics_cumotion_driver/dsr_isaac_sim/usd/m1013_d435i.usd"  # docker
-
 ROBOT_USD_PATH = "/ros2_ws/src/doosanrobotics_cumotion_driver/dsr_isaac_sim/usd/m1013_gripper.usd"  # docker
-# ROBOT_USD_PATH = "/home/gijung/ros2_ws/src/curobo/cumotion_pkg/config/usd/m1013_gripper.usd"      # local
 
 BACKGROUND_STAGE_PRIM = "/background"
 BACKGROUND_USD_PATH = "/Isaac/Environments/Simple_Room/simple_room.usd"
@@ -69,11 +61,9 @@ KLT_STAGE_PATH = "/background/small_KLT"
 KLT_USD_PATH = "/Isaac/Props/KLT_Bin/small_KLT.usd"
 
 
-# -----------------------------------------------------------------------------
 # Extensions (Isaac Sim 4.5)
 #   - ROS2 nodes live in: isaacsim.ros2.bridge :contentReference[oaicite:1]{index=1}
 #   - Core OmniGraph nodes live in: isaacsim.core.nodes :contentReference[oaicite:2]{index=2}
-# -----------------------------------------------------------------------------
 def _enable_ext(ext_name: str):
     try:
         extensions.enable_extension(ext_name)
@@ -84,23 +74,18 @@ def _enable_ext(ext_name: str):
 
 _enable_ext("isaacsim.core.nodes")
 _enable_ext("isaacsim.ros2.bridge")
-_enable_ext("omni.graph.action")  # OnTick / OnImpulseEvent 등 action 노드용
+_enable_ext("omni.graph.action")
 
-# extension enable 이후 몇 프레임 업데이트
 for _ in range(5):
     simulation_app.update()
 
-# -----------------------------------------------------------------------------
 # SimulationContext
-# -----------------------------------------------------------------------------
 simulation_context = SimulationContext(stage_units_in_meters=1.0)
 
 for _ in range(3):
     simulation_app.update()
 
-# -----------------------------------------------------------------------------
 # Scene setup
-# -----------------------------------------------------------------------------
 assets_root_path = nucleus.get_assets_root_path()
 if assets_root_path is None:
     carb.log_error("Could not find Isaac Sim assets folder")
@@ -117,8 +102,8 @@ viewports.set_camera_view(
 stage.add_reference_to_stage(assets_root_path + BACKGROUND_USD_PATH, BACKGROUND_STAGE_PRIM)
 
 # (optional) KLT
-prims.create_prim(KLT_STAGE_PATH, "Xform", position=np.array([-0.2, 0.04, 0.08]),
-                  orientation=rotations.gf_rotation_to_np_array(Gf.Rotation(Gf.Vec3d(0, 0, 1), 0)))
+prims.create_prim(KLT_STAGE_PATH, "Xform", position=np.array([-0.27, 0.14, 0.08]),
+                  orientation=rotations.gf_rotation_to_np_array(Gf.Rotation(Gf.Vec3d(0, 0, 1), 180.0)))
 stage.add_reference_to_stage(assets_root_path + KLT_USD_PATH, KLT_STAGE_PATH)
 
 # robot mount + reference
@@ -144,9 +129,7 @@ for _ in range(10):
 stg = omni.usd.get_context().get_stage()
 
 
-# -----------------------------------------------------------------------------
 # Add objects
-# -----------------------------------------------------------------------------
 prims.create_prim(
     "/Wall",
     "Cube",
@@ -167,9 +150,9 @@ shader.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).Set((0, 0, 230/25
 material.CreateSurfaceOutput().ConnectToSource(shader.ConnectableAPI(), "surface")
 UsdShade.MaterialBindingAPI(blue_cube_geom_prim).Bind(material)
 
-UsdPhysics.RigidBodyAPI.Apply(blue_cube_geom_prim)
-UsdPhysics.CollisionAPI.Apply(blue_cube_geom_prim)
-UsdPhysics.MassAPI.Apply(blue_cube_geom_prim).GetMassAttr().Set(0.05)
+UsdPhysics.RigidBodyAPI.Apply(blue_cube_prim)
+UsdPhysics.CollisionAPI.Apply(blue_cube_prim)
+UsdPhysics.MassAPI.Apply(blue_cube_prim).GetMassAttr().Set(0.05)
 
 # Red cube
 red_cube_prim = prims.create_prim("/red_cube", "Xform", position=np.array([0.2, 0.12, 0.04]))
@@ -184,16 +167,16 @@ red_shader.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).Set((1.0, 0.0
 red_material.CreateSurfaceOutput().ConnectToSource(red_shader.ConnectableAPI(), "surface")
 UsdShade.MaterialBindingAPI(red_cube_geom_prim).Bind(red_material)
 
-UsdPhysics.RigidBodyAPI.Apply(red_cube_geom_prim)
-UsdPhysics.CollisionAPI.Apply(red_cube_geom_prim)
-UsdPhysics.MassAPI.Apply(red_cube_geom_prim).GetMassAttr().Set(0.05)
+UsdPhysics.RigidBodyAPI.Apply(red_cube_prim)
+UsdPhysics.CollisionAPI.Apply(red_cube_prim)
+UsdPhysics.MassAPI.Apply(red_cube_prim).GetMassAttr().Set(0.05)
 
-def _get_or_add_scale_op(xform_prim):
-    xform = UsdGeom.Xformable(xform_prim)
-    for op in xform.GetOrderedXformOps():
-        if op.GetOpType() == UsdGeom.XformOp.TypeScale:
-            return op
-    return xform.AddXformOp(UsdGeom.XformOp.TypeScale)
+# def _get_or_add_scale_op(xform_prim):
+#     xform = UsdGeom.Xformable(xform_prim)
+#     for op in xform.GetOrderedXformOps():
+#         if op.GetOpType() == UsdGeom.XformOp.TypeScale:
+#             return op
+#     return xform.AddXformOp(UsdGeom.XformOp.TypeScale)
 
 # def make_goal_box(name: str, position=(0.0, 0.0, 0.5), size=(0.04, 0.04, 0.04), mass=0.05):
 #     base_path = f"/{name}"
@@ -229,9 +212,7 @@ def _get_or_add_scale_op(xform_prim):
 
 simulation_app.update()
 
-# -----------------------------------------------------------------------------
 # ROS DOMAIN
-# -----------------------------------------------------------------------------
 try:
     ros_domain_id = int(os.environ.get("ROS_DOMAIN_ID", "0"))
 except ValueError:
@@ -259,12 +240,10 @@ target_list = [
     Sdf.Path(KLT_STAGE_PATH),
 ]
 
-# -----------------------------------------------------------------------------
 # Graph 1: Robot <-> ROS
 #   - Node types updated to Isaac Sim 4.5 namespaces
 #   - ROS2Context lives in isaacsim.ros2.bridge :contentReference[oaicite:3]{index=3}
 #   - Time/Articulation nodes live in isaacsim.core.nodes :contentReference[oaicite:4]{index=4}
-# -----------------------------------------------------------------------------
 try:
     keys = og.Controller.Keys
 
@@ -305,28 +284,23 @@ try:
                 ("ReadSimTime.outputs:simulationTime", "PublishClock.inputs:timeStamp"),
             ],
             keys.SET_VALUES: [
-                # ROS2Context: 문서상 domain_id + env var 옵션 제공 :contentReference[oaicite:5]{index=5}
                 ("Context.inputs:domain_id", int(ros_domain_id)),
                 ("Context.inputs:useDomainIDEnvVar", True),
 
-                # ArticulationController: 4.5에서 usePath 옵션 제거됨 → robotPath만 세팅 :contentReference[oaicite:6]{index=6}
                 ("ArticulationController.inputs:robotPath", robot_root),
 
                 ("PublishJointState.inputs:topicName", "/isaac/joint_states"),
 
-                # 필요에 따라 변경
                 ("SubscribeJointState.inputs:topicName", "/joint_states_to_isaac"),
                 # ("SubscribeJointState.inputs:topicName", "/joint_states"),
 
                 ("PublishTransformTree.inputs:targetPrims", target_list),
 
-                # 권장: /clock publish (MoveIt/cuMotion 연동 시 중요)
                 ("PublishClock.inputs:topicName", "/clock"),
             ],
         },
     )
 
-    # PublishJointState의 targetPrim 연결
     set_targets(
         prim=stg.GetPrimAtPath(f"{GRAPH_PATH}/Robot/PublishJointState"),
         attribute="inputs:targetPrim",
@@ -337,10 +311,8 @@ except Exception as e:
     print(f"[Robot Graph] Error: {e}")
 
 
-# -----------------------------------------------------------------------------
 # Graph 2: Camera -> ROS (RGB/Depth/CameraInfo)
 #   - Viewport nodes are in isaacsim.core.nodes :contentReference[oaicite:7]{index=7}
-# -----------------------------------------------------------------------------
 try:
     camera_frame = camera_path.split("/")[-1]
 
@@ -409,16 +381,13 @@ try:
         },
     )
 
-    # OnDemand graph: 한 번 평가해 render product 준비
     og.Controller.evaluate_sync(ros_camera_graph)
 
 except Exception as e:
     print(f"[Camera Graph] Error: {e}")
 
 
-# -----------------------------------------------------------------------------
 # Camera intrinsics
-# -----------------------------------------------------------------------------
 cam_prim = stg.GetPrimAtPath(camera_path)
 if cam_prim.IsValid():
     cam = UsdGeom.Camera(cam_prim)
@@ -428,9 +397,7 @@ if cam_prim.IsValid():
     cam.GetFocusDistanceAttr().Set(400.0)
 
 
-# -----------------------------------------------------------------------------
 # Run loop
-# -----------------------------------------------------------------------------
 simulation_context.play()
 
 while simulation_app.is_running():

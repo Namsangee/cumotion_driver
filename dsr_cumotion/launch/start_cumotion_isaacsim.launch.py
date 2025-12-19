@@ -280,12 +280,12 @@ def generate_launch_description():
         DeclareLaunchArgument("gz", default_value="false", description="Use Gazebo"),
         DeclareLaunchArgument("rt_host", default_value="192.168.137.100", description="RT IP"),
         DeclareLaunchArgument("use_sim_time", default_value="true", description="Use sim time"),
-        DeclareLaunchArgument("gripper", default_value="none", description="GRIPPER type"),
+        DeclareLaunchArgument("gripper", default_value="2f85", description="GRIPPER type"),
         DeclareLaunchArgument("obstacle", default_value="true", description="Obstacle using moveit planningscene"),
         DeclareLaunchArgument("enable_cumotion", default_value="true", description="Enable cumotion node"),
         DeclareLaunchArgument("enable_attach", default_value="true", description="Enable object_attach node"),
         DeclareLaunchArgument("enable_nvblox", default_value="true", description="Enable nvblox node"),
-        DeclareLaunchArgument("isaac_sim", default_value="false", description="Enable Isaac Sim integration"),
+        DeclareLaunchArgument("isaac_sim", default_value="true", description="Enable Isaac Sim integration"),
     ]
 
     update_rate = str(read_update_rate()) # get update_rate from yaml
